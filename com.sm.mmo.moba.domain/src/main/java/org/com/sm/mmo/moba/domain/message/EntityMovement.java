@@ -1,11 +1,9 @@
 package org.com.sm.mmo.moba.domain.message;
 
-public class EntityMovement extends EntityUpdate {
+public class EntityMovement extends EntityPosition {
 
 	private long startedMovingTimestamp;
 	private long timeToReachDestination;
-	private int sourceX;
-	private int sourceY;
 	private int targetX;
 	private int targetY;
 	
@@ -17,22 +15,6 @@ public class EntityMovement extends EntityUpdate {
 		this.timeToReachDestination = timeToReachDestination;
 	}
 
-	public int getSourceX() {
-		return sourceX;
-	}
-	
-	public void setSourceX(int sourceX) {
-		this.sourceX = sourceX;
-	}
-	
-	public int getSourceY() {
-		return sourceY;
-	}
-	
-	public void setSourceY(int sourceY) {
-		this.sourceY = sourceY;
-	}
-	
 	public int getTargetX() {
 		return targetX;
 	}
@@ -62,4 +44,7 @@ public class EntityMovement extends EntityUpdate {
 		return MessageType.ENTITY_MOVEMENT;
 	}
 	
+	public boolean isExpiredMovement() {
+		return getStartedMovingTimestamp() + getTimeToReachDestination() > System.currentTimeMillis();
+	}
 }

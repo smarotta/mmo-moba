@@ -4,21 +4,24 @@ package org.com.sm.mmo.moba.domain;
 public abstract class Message {
 
 	public static enum MessageType {
-		ENTITY_MOVEMENT((short)0xA1),
-		ENTITY_POSITION((short)0xA2),
-		UNKNOWN((short)0x00);
+		ENTITY_MOVEMENT(0xA1),
+		ENTITY_POSITION(0xA2),
+		ENTITY_CONNECTED(0x01),
+		ENTITY_DISCONNECTED(0x02),
+		UNKNOWN(0x00),
+		INTERNAL(0xFF);
 		
-		private short id;
+		private byte id;
 		
-		MessageType(short id) {
-			this.id = id;
+		MessageType(int id) {
+			this.id = (byte)id;
 		}
 		
-		public short getId() {
+		public byte getId() {
 			return id;
 		}
 		
-		public MessageType fromId(short id) {
+		public static MessageType getTypeForValue(byte id) {
 			for(MessageType mt:MessageType.values()) {
 				if (mt.getId() == id) {
 					return mt;
@@ -28,6 +31,16 @@ public abstract class Message {
 		}
 	}
 	
+	private boolean isDiscarted;
+	
+	public boolean isDiscarted() {
+		return isDiscarted;
+	}
+
+	public void setDiscarted(boolean isDiscarted) {
+		this.isDiscarted = isDiscarted;
+	}
+
 	abstract public MessageType getType();
 	
 	

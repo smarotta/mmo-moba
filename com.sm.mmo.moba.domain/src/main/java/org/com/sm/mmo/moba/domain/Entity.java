@@ -1,10 +1,13 @@
 package org.com.sm.mmo.moba.domain;
 
+import java.util.List;
+
 public class Entity extends Identifiable {
 
+	private List<Message> messages;
 	private int x;
 	private int y;
-	private byte angle;
+	private short angle;
 	
 	public int getX() {
 		return x;
@@ -22,11 +25,11 @@ public class Entity extends Identifiable {
 		this.y = y;
 	}
 	
-	public byte getAngle() {
+	public short getAngle() {
 		return angle;
 	}
 	
-	public void setAngle(byte angle) {
+	public void setAngle(short angle) {
 		this.angle = angle;
 	}
 }

@@ -3,31 +3,31 @@ package org.com.sm.mmo.moba.domain.message;
 
 public class EntityPosition extends EntityUpdate {
 	
-	private long x;
-	private long y;
-	private byte angle;
+	private int x;
+	private int y;
+	private short angle;
 	
-	public long getX() {
+	public int getX() {
 		return x;
 	}
 
-	public void setX(long x) {
+	public void setX(int x) {
 		this.x = x;
 	}
 
-	public long getY() {
+	public int getY() {
 		return y;
 	}
 
-	public void setY(long y) {
+	public void setY(int y) {
 		this.y = y;
 	}
 
-	public byte getAngle() {
+	public short getAngle() {
 		return angle;
 	}
 
-	public void setAngle(byte angle) {
+	public void setAngle(short angle) {
 		this.angle = angle;
 	}	
 	

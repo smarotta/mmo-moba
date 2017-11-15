@@ -9,9 +9,9 @@ import org.com.sm.mmo.moba.domain.Message;
 public abstract class FSMFeeder {
 
 	public static enum Type {
-		GAME_LOGIC,
-		NPC_CONTROLLER,
-		NETWORK
+		FSM_GAME_LOGIC,
+		FSM_ENTITY_MOVEMENT,
+		FSM_NETWORK
 	}
 	
 	private UUID id;
@@ -31,13 +31,15 @@ public abstract class FSMFeeder {
 			@Override
 			public void run() {
 				while(true) {
-					if (!stopTicking) {
-						feedMessage();
-					} else {
-						try {
-							Thread.sleep(1000l);
-						} catch (InterruptedException e) { }
-					}
+					try {
+						if (!stopTicking) {
+							feedMessage();
+						} else {
+							try {
+								Thread.sleep(1000l);
+							} catch (InterruptedException e) { }
+						}
+					} catch (Exception e) { }
 				}
 			}
 		});
