@@ -5,7 +5,7 @@ public class EntityConnected extends EntityUpdate {
 
 	@Override
 	public MessageType getType() {
-		return MessageType.ENTITY_DISCONNECTED;
+		return MessageType.ENTITY_CONNECTED;
 	}
 
 }

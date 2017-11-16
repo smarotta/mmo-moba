@@ -47,6 +47,7 @@ public class FSMFeederController implements FSMFeederBroadcaster {
 	public void sendMessage(FSMFeeder.Type type, Message msg) {
 		if (type != null) {
 			Collection<FSMFeeder> feeders = feedersMap.get(type);
+			//System.out.println("Found feeders " + (feeders == null ? "0":""+feeders.size()) + " for type " + type);
 			if (feeders != null) {
 				for(FSMFeeder feeder:feeders) {
 					feeder.enqueueMessage(msg);

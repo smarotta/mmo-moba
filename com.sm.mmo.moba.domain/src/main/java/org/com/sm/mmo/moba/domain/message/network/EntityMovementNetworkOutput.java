@@ -33,13 +33,20 @@ public class EntityMovementNetworkOutput extends EntityPositionNetworkOutput {
 		byte [] data = null;
 		byte [] positionData = super.serialize();
 		data = Arrays.copyOf(positionData, positionData.length + 4 + 4);
-				
+		
+		//header
+		data[0] = getSizeHeader().getByteValue();
+		CodecHelper.writeShort((short)data.length, data, 1);
+		data[3] = getType().getId();
+		
 		//entity DX
-		CodecHelper.writeInt(entityMovement.getTargetX(), data, positionData.length);
+		CodecHelper.writeInt(entityMovement.getTargetX(), data, 4 + 16 + 2 + 4 + 4);
 		
 		//entity DY
-		CodecHelper.writeInt(entityMovement.getTargetY(), data, positionData.length + 4);
-				
+		CodecHelper.writeInt(entityMovement.getTargetY(), data, 4 + 16 + 2 + 4 + 4 + 4);
+		
+		System.out.println("MV>" + debug(data));
+		
 		return data;
 	}
 

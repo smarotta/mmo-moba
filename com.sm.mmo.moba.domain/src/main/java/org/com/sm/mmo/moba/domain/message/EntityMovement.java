@@ -45,6 +45,6 @@ public class EntityMovement extends EntityPosition {
 	}
 	
 	public boolean isExpiredMovement() {
-		return getStartedMovingTimestamp() + getTimeToReachDestination() > System.currentTimeMillis();
+		return getStartedMovingTimestamp() + getTimeToReachDestination() < System.currentTimeMillis();
 	}
 }

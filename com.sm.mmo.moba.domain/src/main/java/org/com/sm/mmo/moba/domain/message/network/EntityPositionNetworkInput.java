@@ -1,5 +1,6 @@
 package org.com.sm.mmo.moba.domain.message.network;
 
+import org.com.sm.mmo.moba.domain.Entity;
 import org.com.sm.mmo.moba.domain.message.EntityPosition;
 import org.com.sm.mmo.moba.domain.message.network.helper.CodecHelper;
 

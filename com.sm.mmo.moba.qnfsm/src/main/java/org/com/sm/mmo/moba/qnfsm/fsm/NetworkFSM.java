@@ -1,4 +1,4 @@
-package org.com.sm.mmo.moba.qnfsm.gamelogic;
+package org.com.sm.mmo.moba.qnfsm.fsm;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,7 +11,9 @@ import org.com.sm.mmo.moba.domain.message.EntityConnected;
 import org.com.sm.mmo.moba.domain.message.EntityDisconnected;
 import org.com.sm.mmo.moba.domain.message.EntityMovement;
 import org.com.sm.mmo.moba.domain.message.EntityPosition;
+import org.com.sm.mmo.moba.domain.message.network.EntityConnectedNetworkOutput;
 import org.com.sm.mmo.moba.domain.message.network.EntityDisconnectedNetworkOutput;
+import org.com.sm.mmo.moba.domain.message.network.EntityMovementNetworkInput;
 import org.com.sm.mmo.moba.domain.message.network.EntityPositionNetworkInput;
 import org.com.sm.mmo.moba.domain.message.network.NetworkInput;
 import org.com.sm.mmo.moba.domain.message.network.NetworkMessage;
@@ -37,13 +39,14 @@ public class NetworkFSM extends FSM {
 
 	@Override
 	protected void processInput(Message msg) {
+		//System.out.println("NetworkFSM: recieved msg " + msg.getClass() + " type:" + msg.getType());
 		switch(msg.getType()) {
 			case ENTITY_MOVEMENT:
 			case ENTITY_POSITION:
 				processInput((NetworkMessage)msg);
 			break;
 			case ENTITY_CONNECTED:
-				processInput((EntityConnected)msg);
+				processInput((EntityConnectedNetworkOutput)msg);
 			break;
 			case ENTITY_DISCONNECTED:
 				processInput((EntityDisconnectedNetworkOutput)msg);
@@ -71,13 +74,19 @@ public class NetworkFSM extends FSM {
 	
 	private void processInput(NetworkMessage msg) {
 		if (msg instanceof NetworkInput) {
-			sendMessage(Type.FSM_ENTITY_MOVEMENT, msg);
+			if (msg instanceof EntityMovementNetworkInput) {
+				((EntityMovementNetworkInput) msg).getEntityMovement().setEntity(((NetworkInput) msg).getSource());
+				sendMessage(Type.FSM_ENTITY_MOVEMENT, ((EntityMovementNetworkInput)msg).getEntityMovement());
+			} else if (msg instanceof EntityPositionNetworkInput) {
+				((EntityPositionNetworkInput) msg).getEntityPosition().setEntity(((NetworkInput) msg).getSource());
+				sendMessage(Type.FSM_ENTITY_MOVEMENT, ((EntityPositionNetworkInput)msg).getEntityPosition());
+			} else {
+				sendMessage(Type.FSM_ENTITY_MOVEMENT, msg);
+			}
 		} else if (msg instanceof NetworkOutput){
 			//send message over TCP to the target entity
 			NetworkOutput outputMsg = (NetworkOutput)msg;
-			if (connectedEntities.contains(outputMsg.getDestination())) {
-				networkHandler.sendMessage(outputMsg.getDestination(), outputMsg);
-			}
+			networkHandler.sendMessage(outputMsg.getDestination(), outputMsg);
 		} else {
 			//i have no idea why we are getting this msg!
 		}

@@ -30,7 +30,7 @@ public class EntityPositionNetworkOutput extends NetworkOutput {
 		// C1 xx xx A2 [ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID] [AG AG] [XX XX XX XX] [YY YY YY YY]
 		byte [] data = null;
 		
-		data = new byte [4 + 16 + 1 + 4 + 4];
+		data = new byte [4 + 16 + 2 + 4 + 4];
 		
 		//header
 		data[0] = getSizeHeader().getByteValue();
@@ -42,12 +42,14 @@ public class EntityPositionNetworkOutput extends NetworkOutput {
 		
 		//entity angle
 		CodecHelper.writeShort((short)entityPosition.getAngle(), data, 4 + 16);
-		
+				
 		//entity X
-		CodecHelper.writeInt(entityPosition.getX(), data, 4 + 16 + 2 + 4);
+		CodecHelper.writeInt(entityPosition.getX(), data, 4 + 16 + 2);
 		
 		//entity Y
-		CodecHelper.writeInt(entityPosition.getY(), data, 4 + 16 + 2 + 4 + 4);
+		CodecHelper.writeInt(entityPosition.getY(), data, 4 + 16 + 2 + 4);
+		
+		System.out.println("PN>" + debug(data));
 		
 		return data;
 	}

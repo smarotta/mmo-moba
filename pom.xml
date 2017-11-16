@@ -14,6 +14,7 @@
 		<module>com.sm.mmo.moba.domain</module>
 		<module>com.sm.mmo.moba.qnfsm</module>
 		<module>com.sm.mmo.moba.gameserver</module>
+		<module>com.sm.mmo.moba.client</module>
 	</modules>
 
 	<properties>

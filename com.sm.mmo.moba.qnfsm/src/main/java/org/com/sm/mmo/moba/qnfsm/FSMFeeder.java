@@ -39,7 +39,9 @@ public abstract class FSMFeeder {
 								Thread.sleep(1000l);
 							} catch (InterruptedException e) { }
 						}
-					} catch (Exception e) { }
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		});
