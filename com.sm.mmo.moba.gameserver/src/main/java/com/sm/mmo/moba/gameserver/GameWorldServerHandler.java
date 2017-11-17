@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.com.sm.mmo.moba.domain.Entity;
 import org.com.sm.mmo.moba.domain.message.EntityConnected;
+import org.com.sm.mmo.moba.domain.message.EntityDisconnected;
 import org.com.sm.mmo.moba.domain.message.EntityPosition;
 import org.com.sm.mmo.moba.domain.message.EntityUpdate;
 import org.com.sm.mmo.moba.domain.message.network.EntityConnectedNetworkOutput;
@@ -30,14 +31,12 @@ import org.com.sm.mmo.moba.qnfsm.fsm.NetworkFSM;
 import org.com.sm.mmo.moba.qnfsm.fsm.NetworkFSM.NetworkHandler;
 
 import com.sm.mmo.moba.gameserver.domain.ConnectedPlayer;
+import com.sm.mmo.moba.gameserver.domain.ConnectedPlayersBag;
 
 @Sharable
 public class GameWorldServerHandler extends ChannelInboundHandlerAdapter implements NetworkHandler {
 	
-	private static final Map<ChannelHandlerContext, ConnectedPlayer> contextClientMap = new ConcurrentHashMap<ChannelHandlerContext, ConnectedPlayer>();
-	private static final Map<UUID, ConnectedPlayer> connectedPlayerIdMap = new ConcurrentHashMap<UUID, ConnectedPlayer>();
-	private static final Map<UUID, ChannelHandlerContext> connectedPlayerContextMap = new ConcurrentHashMap<UUID, ChannelHandlerContext>();
-	
+	private final ConnectedPlayersBag players = new ConnectedPlayersBag();
 	private GameWorldServerBroadcaster broadcaster;
 	private FSMFeederController fsmController;
 	
@@ -61,11 +60,14 @@ public class GameWorldServerHandler extends ChannelInboundHandlerAdapter impleme
 	}
 	
 	private void removeConnectedPlayer(ChannelHandlerContext ctx) {
-		ConnectedPlayer player = contextClientMap.get(ctx);
+		ConnectedPlayer player = players.getPlayerByContext(ctx);
 		if (player != null) {
-			contextClientMap.remove(ctx);
-			connectedPlayerIdMap.remove(player.getId());
-			connectedPlayerContextMap.remove(player.getId());
+			players.remove(ctx);
+			
+			//let the FSM know about the disconnected player
+			EntityDisconnected ed = new EntityDisconnected();
+			ed.setEntity(player);
+			fsmController.sendMessage(FSMFeeder.Type.FSM_NETWORK, ed);
 		}
 	}
 	
@@ -73,79 +75,39 @@ public class GameWorldServerHandler extends ChannelInboundHandlerAdapter impleme
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		super.channelInactive(ctx);
 		removeConnectedPlayer(ctx);
-		//call FSM
 	}
 	
 	@Override
 	public synchronized void channelActive(ChannelHandlerContext ctx) throws Exception {
 		System.out.println("Sombebody connected to me!");
-		super.channelActive(ctx);
+		//super.channelActive(ctx);
 		ConnectedPlayer player = new ConnectedPlayer(ctx);
 		player.setId(UUID.randomUUID());
-		contextClientMap.put(ctx, player);
-		connectedPlayerIdMap.put(player.getId(), player);
-		connectedPlayerContextMap.put(player.getId(), ctx);
+		players.add(ctx, player);
 		
-		for(ConnectedPlayer target:connectedPlayerIdMap.values()) {
-			EntityConnectedNetworkOutput ecno = new EntityConnectedNetworkOutput(new EntityConnected());
-			ecno.getEntityConnected().setEntity(player);
-			ecno.setDestination(target);
-			fsmController.sendMessage(FSMFeeder.Type.FSM_NETWORK, ecno);
-		}
-		/*
-		for(ConnectedPlayer target:connectedPlayerIdMap.values()) {
-			if (target != player){
-				EntityPositionNetworkOutput epno = new EntityPositionNetworkOutput(new EntityPosition());
-				epno.getEntityPosition().setEntity(target);
-				epno.getEntityPosition().setAngle(target.getAngle());
-				epno.getEntityPosition().setX(target.getX());
-				epno.getEntityPosition().setY(target.getY());
-				epno.setDestination(player);
-				fsmController.sendMessage(FSMFeeder.Type.FSM_NETWORK, epno);
-			}
-		}
-		*/
+		//let the FSM know about the new player
+		EntityConnected ec = new EntityConnected();
+		ec.setEntity(player);
+		fsmController.sendMessage(FSMFeeder.Type.FSM_NETWORK, ec);
 	}
 	
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object objMsg) {
-		System.out.println("Recieved msg!");
+		//super.channelRead(ctx, objMsg);
 		if (objMsg instanceof NetworkInput) {
-			System.out.println("Recieved NetworkInput");
 			NetworkInput input = (NetworkInput) objMsg;
-			ConnectedPlayer player = contextClientMap.get(ctx);
-			System.out.println("Connected player is:" + player);
+			ConnectedPlayer player = players.getPlayerByContext(ctx);
 			if (player != null) {
 				input.setSource(player);
 				fsmController.sendMessage(FSMFeeder.Type.FSM_NETWORK, input);
 			}
-			
 		}
-		/*
-		if (objMsg instanceof SketchCommandInput) {
-			ConnectedPlayer player = contextClientMap.get(ctx);
-			if (player != null) {
-				Set<ConnectedPlayer> players = new HashSet<ConnectedPlayer>();
-				players.addAll(contextClientMap.values());
-				players.remove(player);
-								
-				SketchCommandInput in = (SketchCommandInput) objMsg;
-				SketchCommandOutput out = new SketchCommandOutput();
-				out.setPlayerId(player.getId());
-				out.setSketch(in.getSketch());
-				broadcaster.addCommandToQueue(players, out);
-			} else {
-				System.err.println("command recieved on an unknown player, ignored!");
-			}
-		}
-		*/
 	}
 	
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		cause.printStackTrace();
 		removeConnectedPlayer(ctx);
-		//call FSM
 	}
 	
 	public void writeToConnectedPlayers(Set<ConnectedPlayer> players, List<NetworkOutput> commands) {
@@ -159,8 +121,7 @@ public class GameWorldServerHandler extends ChannelInboundHandlerAdapter impleme
 
 	@Override
 	public void sendMessage(Entity entity, NetworkOutput out) {
-		//System.out.println("FSM asked to send something! " + out.getType());
-		ChannelHandlerContext chc = connectedPlayerContextMap.get(entity.getId());
+		ChannelHandlerContext chc = players.getContextByPlayerId(entity.getId());
 		if (chc != null) {
 			chc.writeAndFlush(out);
 		}
@@ -168,7 +129,7 @@ public class GameWorldServerHandler extends ChannelInboundHandlerAdapter impleme
 
 	@Override
 	public void disconnect(Entity entity) {
-		ChannelHandlerContext chc = connectedPlayerContextMap.get(entity.getId());
+		ChannelHandlerContext chc = players.getContextByPlayerId(entity.getId());
 		if (chc != null) {
 			chc.disconnect();
 		}

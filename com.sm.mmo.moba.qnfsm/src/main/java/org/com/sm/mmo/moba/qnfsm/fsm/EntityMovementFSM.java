@@ -1,20 +1,16 @@
 package org.com.sm.mmo.moba.qnfsm.fsm;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.com.sm.mmo.moba.domain.Entity;
 import org.com.sm.mmo.moba.domain.Message;
 import org.com.sm.mmo.moba.domain.message.EntityMovement;
 import org.com.sm.mmo.moba.domain.message.EntityPosition;
 import org.com.sm.mmo.moba.domain.message.EntityUpdate;
-import org.com.sm.mmo.moba.domain.message.network.EntityMovementNetworkInput;
 import org.com.sm.mmo.moba.qnfsm.FSM;
-import org.com.sm.mmo.moba.qnfsm.FSMFeederBroadcaster;
 import org.com.sm.mmo.moba.qnfsm.FSMFeeder.Type;
+import org.com.sm.mmo.moba.qnfsm.FSMFeederBroadcaster;
 
 public class EntityMovementFSM extends FSM {
 
@@ -96,6 +92,7 @@ public class EntityMovementFSM extends FSM {
 			y = msg.getTargetY();
 			fraction = 1.0d;
 			movingEntities.remove(msg.getEntity().getId());
+			sendMessage(Type.FSM_GAME_LOGIC, newPosition);
 		} else {
 			long timePast = System.currentTimeMillis() - msg.getStartedMovingTimestamp();
 			fraction = timePast / (msg.getTimeToReachDestination() * 1.0d);
@@ -118,5 +115,6 @@ public class EntityMovementFSM extends FSM {
 			}
 		}
 	}
+	
 
 }
