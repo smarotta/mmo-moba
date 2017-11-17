@@ -31,13 +31,5 @@ public abstract class NetworkMessage extends Message {
 		}
 	}
 
-	public String debug(byte [] data) {
-		StringBuilder sb = new StringBuilder();
-		for(int x=0; x < data.length; x++) {
-			sb.append(String.format("%02x", data[x]).toUpperCase()).append(" ");
-		}
-		return sb.toString();
-	}
-	
 	public abstract SizeHeader getSizeHeader();
 }

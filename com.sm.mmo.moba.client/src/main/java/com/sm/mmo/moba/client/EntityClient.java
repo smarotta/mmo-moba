@@ -23,7 +23,10 @@ public class EntityClient {
             b.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
-                    ch.pipeline().addLast(new ClientGameWorldServerDecoder(), handler);
+                    ch.pipeline().addLast(
+                    		new ClientGameWorldServerDecoder(), 
+                    		new ClientGameWorldServerEncoder(), 
+                    		handler);
                 }
             });
 

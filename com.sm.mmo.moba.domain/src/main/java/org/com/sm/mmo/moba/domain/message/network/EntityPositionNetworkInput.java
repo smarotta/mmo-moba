@@ -1,6 +1,5 @@
 package org.com.sm.mmo.moba.domain.message.network;
 
-import org.com.sm.mmo.moba.domain.Entity;
 import org.com.sm.mmo.moba.domain.message.EntityPosition;
 import org.com.sm.mmo.moba.domain.message.network.helper.CodecHelper;
 
@@ -19,7 +18,7 @@ public class EntityPositionNetworkInput extends NetworkInput {
 
 	@Override
 	public MessageType getType() {
-		return entityPosition.getType();
+		return MessageType.ENTITY_POSITION;
 	}
 
 	public EntityPosition getEntityPosition() {

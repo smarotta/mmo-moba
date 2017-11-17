@@ -26,7 +26,10 @@ public class GameWorldServer implements Runnable {
              .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
                  @Override
                  public void initChannel(SocketChannel ch) throws Exception {
-                     ch.pipeline().addLast( new GameWorldServerDecoder(), handler);
+                     ch.pipeline().addLast(
+                    		 new GameWorldServerDecoder(),
+                    		 new GameWorldServerEncoder(),
+                    		 handler);
                  }
              })
              .option(ChannelOption.SO_BACKLOG, 128)          // (5)

@@ -7,17 +7,6 @@ import io.netty.buffer.ByteBuf;
 
 public class NetworkMessageDecoder {
 
-	public static boolean isReadyToDecode(ByteBuf buffer) {
-		if (buffer != null && buffer.readableBytes() > 1) {
-			int numberOfBytesDescribingLength = getNumberOfBytesDescribingLength(buffer);
-			if (buffer.readableBytes() >= 1 + numberOfBytesDescribingLength + 1) {
-				int length = getPackageSize(buffer, numberOfBytesDescribingLength);
-				return buffer.readableBytes() >= length;
-			}
-		}
-		return false;
-	}
-	
 	public static Message decode(ByteBuf buffer) {
 		//read to a byte array
 		byte [] bucket = readPackageFromBuffer(buffer);

@@ -1,5 +1,6 @@
 package com.sm.mmo.moba.client;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -28,6 +29,7 @@ import com.sm.mmo.moba.client.messages.ClientEntityMovementNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntityMovementNetworkOutput;
 import com.sm.mmo.moba.client.messages.ClientEntityPositionNetworkInput;
 
+@ChannelHandler.Sharable
 public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 	
 	private static final Map<ChannelHandlerContext, ConnectedPlayer> contextClientMap = new ConcurrentHashMap<ChannelHandlerContext, ConnectedPlayer>();
@@ -89,7 +91,12 @@ public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			System.out.println("mouse clicked!");
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			System.out.println("mouse pressed!");
 			if (entitiesCtxMap.containsKey(me.getId())) {
 				ChannelHandlerContext ctx = entitiesCtxMap.get(me.getId());
 				EntityMovement em = new EntityMovement();
@@ -103,11 +110,6 @@ public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 				ctx.writeAndFlush(mv);
 				System.out.println("From [" + em.getX() + "," + em.getY() + "] to [" + em.getTargetX() + "," + em.getTargetY() + "]");
 			}
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -150,6 +152,46 @@ public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 		me.setY(0);
 	}
 	
+	private void handle(ClientEntityMovementNetworkInput entityMovementNetworkInput, ChannelHandlerContext ctx) {
+		if (!entitiesMap.containsKey(entityMovementNetworkInput.getEntityMovement().getEntity().getId())) {
+			entitiesMap.put(entityMovementNetworkInput.getEntityMovement().getEntity().getId(), entityMovementNetworkInput.getEntityMovement().getEntity());
+		}
+	
+		Entity entity = entitiesMap.get(entityMovementNetworkInput.getEntityMovement().getEntity().getId());
+		entity.setX(entityMovementNetworkInput.getEntityMovement().getX());
+		entity.setY(entityMovementNetworkInput.getEntityMovement().getY());
+		clientPanel.setDestination(entity, entityMovementNetworkInput.getEntityMovement().getTargetX(), entityMovementNetworkInput.getEntityMovement().getTargetY());
+		frame.getContentPane().validate();
+		frame.getContentPane().repaint();
+	}
+	
+	private void handle(ClientEntityPositionNetworkInput entityPositionNetworkInput, ChannelHandlerContext ctx) {
+		if (!entitiesMap.containsKey(entityPositionNetworkInput.getEntityPosition().getEntity().getId())) {
+			entitiesMap.put(entityPositionNetworkInput.getEntityPosition().getEntity().getId(), entityPositionNetworkInput.getEntityPosition().getEntity());
+		}
+	
+		Entity entity = entitiesMap.get(entityPositionNetworkInput.getEntityPosition().getEntity().getId());
+		entity.setX(entityPositionNetworkInput.getEntityPosition().getX());
+		entity.setY(entityPositionNetworkInput.getEntityPosition().getY());
+		frame.getContentPane().validate();
+		frame.getContentPane().repaint();
+	}
+	
+	private void handle(ClientEntityConnectedNetworkInput cecni, ChannelHandlerContext ctx) {
+		Entity ce = cecni.getEntityConnected().getEntity();
+		if (me == null) {
+			me = new ConnectedPlayer(ctx);
+			me.setId(ce.getId());
+			contextClientMap.put(ctx, me);
+			entitiesMap.put(me.getId(), me);
+			entitiesCtxMap.put(me.getId(), ctx);
+			setupPanel();
+		} else if (!ce.getId().equals(me.getId())) {
+			entitiesMap.put(ce.getId(), ce);
+			entitiesCtxMap.put(ce.getId(), ctx);
+		}
+	}
+	
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object objMsg) {
 		if (objMsg instanceof NetworkInput) {
@@ -160,42 +202,14 @@ public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 			}
 			
 			if (input instanceof ClientEntityMovementNetworkInput) {
-				ClientEntityMovementNetworkInput entityMovementNetworkInput = (ClientEntityMovementNetworkInput) input;
-				if (!entitiesMap.containsKey(entityMovementNetworkInput.getEntityPosition().getEntity().getId())) {
-					entitiesMap.put(entityMovementNetworkInput.getEntityPosition().getEntity().getId(), entityMovementNetworkInput.getEntityPosition().getEntity());
-				}
-			
-				Entity entity = entitiesMap.get(entityMovementNetworkInput.getEntityPosition().getEntity().getId());
-				entity.setX(entityMovementNetworkInput.getEntityPosition().getX());
-				entity.setY(entityMovementNetworkInput.getEntityPosition().getY());
-				clientPanel.setDestination(entity, entityMovementNetworkInput.getEntityMovement().getTargetX(), entityMovementNetworkInput.getEntityMovement().getTargetY());
-				frame.getContentPane().validate();
-				frame.getContentPane().repaint();
+				handle((ClientEntityMovementNetworkInput) input, ctx);
+				
 			} else if (input instanceof ClientEntityPositionNetworkInput) {
-				ClientEntityPositionNetworkInput entityPositionNetworkInput = (ClientEntityPositionNetworkInput) input;
-				if (!entitiesMap.containsKey(entityPositionNetworkInput.getEntityPosition().getEntity().getId())) {
-					entitiesMap.put(entityPositionNetworkInput.getEntityPosition().getEntity().getId(), entityPositionNetworkInput.getEntityPosition().getEntity());
-				}
-			
-				Entity entity = entitiesMap.get(entityPositionNetworkInput.getEntityPosition().getEntity().getId());
-				entity.setX(entityPositionNetworkInput.getEntityPosition().getX());
-				entity.setY(entityPositionNetworkInput.getEntityPosition().getY());
-				frame.getContentPane().validate();
-				frame.getContentPane().repaint();
+				handle((ClientEntityPositionNetworkInput) input, ctx);
+				
 			} else if (input instanceof ClientEntityConnectedNetworkInput) {
-				ClientEntityConnectedNetworkInput cecni = (ClientEntityConnectedNetworkInput) input;
-				Entity ce = cecni.getEntityConnected().getEntity();
-				if (me == null) {
-					me = new ConnectedPlayer(ctx);
-					me.setId(ce.getId());
-					contextClientMap.put(ctx, me);
-					entitiesMap.put(me.getId(), me);
-					entitiesCtxMap.put(me.getId(), ctx);
-					setupPanel();
-				} else if (!ce.getId().equals(me.getId())) {
-					entitiesMap.put(ce.getId(), ce);
-					entitiesCtxMap.put(ce.getId(), ctx);
-				}
+				handle((ClientEntityConnectedNetworkInput) input, ctx);
+
 			}
 		}
     }

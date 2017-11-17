@@ -1,31 +1,40 @@
 package com.sm.mmo.moba.client;
 
+import java.nio.ByteOrder;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageCodec;
-
-import java.util.List;
-
-import org.com.sm.mmo.moba.domain.message.network.NetworkMessage;
-import org.com.sm.mmo.moba.domain.message.network.NetworkOutput;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 import com.sm.mmo.moba.client.codec.ClientNetworkMessageDecoder;
-import com.sm.mmo.moba.client.codec.ClientNetworkMessageEncoder;
 
-public class ClientGameWorldServerDecoder extends ByteToMessageCodec<NetworkMessage>{
+public class ClientGameWorldServerDecoder extends LengthFieldBasedFrameDecoder {
 	
-	@Override
-	protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-		if (ClientNetworkMessageDecoder.isReadyToDecode(in)) {
-			out.add(ClientNetworkMessageDecoder.decode(in));
-		}
-	}
-
-	@Override
-	protected void encode(ChannelHandlerContext ctx, NetworkMessage msg, ByteBuf out) throws Exception {
-		if (msg instanceof NetworkOutput) {
-			out.writeBytes(ClientNetworkMessageEncoder.encode((NetworkOutput)msg));
-		}
+	public ClientGameWorldServerDecoder() {
+		super(ByteOrder.BIG_ENDIAN, 0xFFFF, 
+				1, //lengthFieldOffset    
+				2, //lengthFieldLength  
+				-3, //lengthAdjustment
+				0, //initialBytesToStrip 
+				false);
 	}
 	
+	public String debug(ByteBuf data) {
+		StringBuilder sb = new StringBuilder();
+		for(int x=0; x < data.readableBytes(); x++) {
+			sb.append(String.format("%02x", data.getByte(x)).toUpperCase()).append(" ");
+		}
+		return sb.toString();
+	}
+	
+	@Override
+	protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
+		ByteBuf frame = (ByteBuf) super.decode(ctx, in);
+		if (frame != null) {
+			System.out.println("Client <- Server: " + debug(frame));
+			return ClientNetworkMessageDecoder.decode(frame);
+		} else {
+			return null;
+		}
+	}
 }

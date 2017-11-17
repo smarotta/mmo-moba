@@ -11,6 +11,7 @@ import org.com.sm.mmo.moba.domain.message.network.NetworkMessage;
 import org.com.sm.mmo.moba.domain.message.network.NetworkOutput;
 import org.com.sm.mmo.moba.domain.message.network.UnrecognizedNetworkInput;
 
+import com.sm.mmo.moba.client.ByteHelper;
 import com.sm.mmo.moba.client.messages.ClientEntityConnectedNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntityMovementNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntityPositionNetworkInput;
@@ -74,7 +75,9 @@ public class ClientNetworkMessageFactory {
 	}
 	
 	public static byte [] serializeCommand(NetworkOutput message) {
-		return message.serialize();
+		byte [] data = message.serialize();
+		System.out.println("ENCODED: " + ByteHelper.debug(data));
+		return data;
 	}
 	
 }

@@ -18,7 +18,7 @@ public class EntityConnectedNetworkOutput extends NetworkOutput {
 
 	@Override
 	public MessageType getType() {
-		return entityConnected.getType();
+		return MessageType.ENTITY_CONNECTED;
 	}
 	
 	public EntityConnected getEntityConnected() {

@@ -18,7 +18,7 @@ public class EntityPositionNetworkOutput extends NetworkOutput {
 
 	@Override
 	public MessageType getType() {
-		return entityPosition.getType();
+		return MessageType.ENTITY_POSITION;
 	}
 	
 	public EntityPosition getEntityPosition() {
@@ -48,9 +48,7 @@ public class EntityPositionNetworkOutput extends NetworkOutput {
 		
 		//entity Y
 		CodecHelper.writeInt(entityPosition.getY(), data, 4 + 16 + 2 + 4);
-		
-		System.out.println("PN>" + debug(data));
-		
+				
 		return data;
 	}
 
