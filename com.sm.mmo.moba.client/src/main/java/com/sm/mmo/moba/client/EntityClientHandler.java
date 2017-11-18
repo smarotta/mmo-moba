@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
 import com.sm.mmo.moba.client.messages.ClientEntityConnectedNetworkInput;
+import com.sm.mmo.moba.client.messages.ClientEntityDisconnectedNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntityMovementNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntityMovementNetworkOutput;
 import com.sm.mmo.moba.client.messages.ClientEntityPositionNetworkInput;
@@ -64,20 +65,22 @@ public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 			
 			g.setColor(Color.black);
 			synchronized(entitiesMap) {
-				for (Entry<Entity, Point> entry:entityDestinations.entrySet()) {
-					g.setColor(Color.GRAY);
-					g.drawLine(entry.getKey().getX(), entry.getKey().getY(), (int)entry.getValue().getX(), (int)entry.getValue().getY());
-					g.drawArc((int)entry.getValue().getX() - 5, (int)entry.getValue().getY() - 5, 10, 10, 0, 360);
-				}
-				
-				for(Entity entity:entitiesMap.values()) {
-					if (entity.getId().equals(me.getId())) {
-						g.setColor(Color.BLACK);
-						me = entity;
-					} else {
-						g.setColor(Color.RED);
+				synchronized(entityDestinations) {
+					for (Entry<Entity, Point> entry:entityDestinations.entrySet()) {
+						g.setColor(Color.GRAY);
+						g.drawLine(entry.getKey().getX(), entry.getKey().getY(), (int)entry.getValue().getX(), (int)entry.getValue().getY());
+						g.drawArc((int)entry.getValue().getX() - 5, (int)entry.getValue().getY() - 5, 10, 10, 0, 360);
 					}
-					g.fillRect((int)entity.getX() - 2, (int)entity.getY() - 2, 4, 4);
+					
+					for(Entity entity:entitiesMap.values()) {
+						if (entity.getId().equals(me.getId())) {
+							g.setColor(Color.BLACK);
+							me = entity;
+						} else {
+							g.setColor(Color.RED);
+						}
+						g.fillRect((int)entity.getX() - 2, (int)entity.getY() - 2, 4, 4);
+					}
 				}
 			}
 			
@@ -209,11 +212,18 @@ public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 		entity.setX(entitySpawnNetworkInput.getEntitySpawn().getX());
 		entity.setY(entitySpawnNetworkInput.getEntitySpawn().getY());
 		entity.setRace(entitySpawnNetworkInput.getEntitySpawn().getRace());
+		clientPanel.entityDestinations.remove(entity.getId());
 		frame.getContentPane().validate();
 		frame.getContentPane().repaint();
 	}
 	
-	
+	private void handle(ClientEntityDisconnectedNetworkInput input, ChannelHandlerContext ctx) {
+		clientPanel.entityDestinations.remove(input.getEntityDisconnected().getEntity().getId());
+		entitiesMap.remove(input.getEntityDisconnected().getEntity().getId());
+		entitiesCtxMap.remove(input.getEntityDisconnected().getEntity().getId());
+		frame.getContentPane().validate();
+		frame.getContentPane().repaint();
+	}
 	
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object objMsg) {
@@ -232,6 +242,9 @@ public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 				
 			} else if (input instanceof ClientEntityConnectedNetworkInput) {
 				handle((ClientEntityConnectedNetworkInput) input, ctx);
+
+			} else if (input instanceof ClientEntityDisconnectedNetworkInput) {
+				handle((ClientEntityDisconnectedNetworkInput) input, ctx);
 
 			} else if (input instanceof ClientEntitySpawnNetworkInput) {
 				handle((ClientEntitySpawnNetworkInput) input, ctx);

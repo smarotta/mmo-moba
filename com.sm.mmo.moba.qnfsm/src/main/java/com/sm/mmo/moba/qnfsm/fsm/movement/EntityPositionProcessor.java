@@ -31,8 +31,6 @@ public class EntityPositionProcessor extends AbstractSpatialProcessor {
 	public void process(FSM fsm, QuadTree<Entity> entityTree, Map<UUID, EntityMovement> movingEntities, EntityPosition  msg) {
 		
 		Collection<Entity> proximityBefore = getProximity(entityTree, msg.getEntity());
-		System.out.println("proximityBefore: " + proximityBefore.size());
-		
 		msg.getEntity().setX(msg.getX());
 		msg.getEntity().setY(msg.getY());
 		
@@ -41,17 +39,14 @@ public class EntityPositionProcessor extends AbstractSpatialProcessor {
 		entityTree.insert(msg.getEntity());
 		
 		Collection<Entity> proximityNow = getProximity(entityTree, msg.getEntity());
-		System.out.println("proximityNow: " + proximityNow.size());
 		
 		//stopped seeing
 		Collection<Entity> stoppedSeeing = new ArrayList<Entity>(proximityBefore);
 		stoppedSeeing.removeAll(proximityNow);
-		System.out.println("stoppedSeeing: " + stoppedSeeing.size());
 		
 		//started seeing
 		Collection<Entity> startedToSee = new ArrayList<Entity>(proximityNow);
 		startedToSee.removeAll(proximityBefore);
-		System.out.println("startedToSee: " + startedToSee.size());
 		
 		//add itself to the list (temporary)
 		//proximityNow.add(msg.getEntity());
@@ -62,6 +57,11 @@ public class EntityPositionProcessor extends AbstractSpatialProcessor {
 			diconnectedMsg.getEntityDisconnected().setEntity(msg.getEntity());
 			diconnectedMsg.setDestination(e);
 			fsm.sendMessage(Type.FSM_NETWORK, diconnectedMsg);
+			
+			EntityDisconnectedNetworkOutput diconnectedMsgForMovingEntity = new EntityDisconnectedNetworkOutput(new EntityDisconnected());
+			diconnectedMsgForMovingEntity.getEntityDisconnected().setEntity(e);
+			diconnectedMsgForMovingEntity.setDestination(msg.getEntity());
+			fsm.sendMessage(Type.FSM_NETWORK, diconnectedMsgForMovingEntity);
 		}
 		
 		//now add the entities to the ones that started seeing it

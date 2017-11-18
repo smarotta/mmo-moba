@@ -24,6 +24,7 @@ import com.sm.mmo.moba.qnfsm.FSMFeederBroadcaster;
 import com.sm.mmo.moba.qnfsm.FSMFeeder.Type;
 import com.sm.mmo.moba.qnfsm.fsm.movement.EntityMovementProcessor;
 import com.sm.mmo.moba.qnfsm.fsm.movement.EntityPositionProcessor;
+import com.sm.mmo.moba.qnfsm.fsm.movement.EntityRemovedProcessor;
 import com.sm.mmo.moba.qnfsm.fsm.movement.EntitySpawnProcessor;
 
 public class MovementFSM extends FSM {
@@ -47,6 +48,8 @@ public class MovementFSM extends FSM {
 	private EntityMovementProcessor movementProcessor = new EntityMovementProcessor(MAP_BOUNDARY, PROXIMITY_DIMENSION);
 	private EntityPositionProcessor positionProcessor = new EntityPositionProcessor(MAP_BOUNDARY, PROXIMITY_DIMENSION);
 	private EntitySpawnProcessor entitySpawnProcessor = new EntitySpawnProcessor(MAP_BOUNDARY, PROXIMITY_DIMENSION);
+	private EntityRemovedProcessor entityRemovedProcessor = new EntityRemovedProcessor(MAP_BOUNDARY, PROXIMITY_DIMENSION);
+	
 	
 	public MovementFSM(FSMFeederBroadcaster broadcaster) {
 		super(broadcaster);
@@ -96,8 +99,7 @@ public class MovementFSM extends FSM {
 	}
 	
 	private void processInput(EntityRemoved msg) {
-		entityTree.remove(msg.getEntity());
-		movingEntities.remove(msg.getEntity().getId());
+		entityRemovedProcessor.process(this, entityTree, movingEntities, msg);
 	}
 	
 	private void processInput(EntitySpawn msg) {

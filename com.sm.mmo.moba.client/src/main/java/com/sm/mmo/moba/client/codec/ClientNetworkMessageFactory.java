@@ -2,6 +2,7 @@ package com.sm.mmo.moba.client.codec;
 
 import com.sm.mmo.moba.client.ByteHelper;
 import com.sm.mmo.moba.client.messages.ClientEntityConnectedNetworkInput;
+import com.sm.mmo.moba.client.messages.ClientEntityDisconnectedNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntityMovementNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntityPositionNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntitySpawnNetworkInput;
@@ -48,8 +49,8 @@ public class ClientNetworkMessageFactory {
 			break;
 			
 			case ENTITY_DISCONNECTED:
-				EntityDisconnected entityDisconnected = new EntityDisconnected();
-				//entityDisconnected.deserialize(bucket);
+				ClientEntityDisconnectedNetworkInput entityDisconnected = new ClientEntityDisconnectedNetworkInput(new EntityDisconnected());
+				entityDisconnected.deserialize(bucket);
 				message = entityDisconnected;
 			break;
 			
