@@ -1,15 +1,15 @@
 package com.sm.mmo.moba.gameserver.codec;
 
-import org.com.sm.mmo.moba.domain.Message;
-import org.com.sm.mmo.moba.domain.message.EntityConnected;
-import org.com.sm.mmo.moba.domain.message.EntityDisconnected;
-import org.com.sm.mmo.moba.domain.message.EntityMovement;
-import org.com.sm.mmo.moba.domain.message.EntityPosition;
-import org.com.sm.mmo.moba.domain.message.network.EntityMovementNetworkInput;
-import org.com.sm.mmo.moba.domain.message.network.EntityPositionNetworkInput;
-import org.com.sm.mmo.moba.domain.message.network.NetworkMessage;
-import org.com.sm.mmo.moba.domain.message.network.NetworkOutput;
-import org.com.sm.mmo.moba.domain.message.network.UnrecognizedNetworkInput;
+import com.sm.mmo.moba.domain.Message;
+import com.sm.mmo.moba.domain.message.EntityConnected;
+import com.sm.mmo.moba.domain.message.EntityDisconnected;
+import com.sm.mmo.moba.domain.message.EntityMovement;
+import com.sm.mmo.moba.domain.message.EntityPosition;
+import com.sm.mmo.moba.domain.message.network.EntityMovementNetworkInput;
+import com.sm.mmo.moba.domain.message.network.EntityPositionNetworkInput;
+import com.sm.mmo.moba.domain.message.network.NetworkMessage;
+import com.sm.mmo.moba.domain.message.network.NetworkOutput;
+import com.sm.mmo.moba.domain.message.network.UnrecognizedNetworkInput;
 
 public class NetworkMessageFactory {
 

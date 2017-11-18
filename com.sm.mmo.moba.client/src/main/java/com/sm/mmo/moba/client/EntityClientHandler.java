@@ -18,16 +18,16 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
-import org.com.sm.mmo.moba.domain.Entity;
-import org.com.sm.mmo.moba.domain.message.EntityMovement;
-import org.com.sm.mmo.moba.domain.message.network.EntityMovementNetworkOutput;
-import org.com.sm.mmo.moba.domain.message.network.EntityPositionNetworkInput;
-import org.com.sm.mmo.moba.domain.message.network.NetworkInput;
-
 import com.sm.mmo.moba.client.messages.ClientEntityConnectedNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntityMovementNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntityMovementNetworkOutput;
 import com.sm.mmo.moba.client.messages.ClientEntityPositionNetworkInput;
+import com.sm.mmo.moba.client.messages.ClientEntitySpawnNetworkInput;
+import com.sm.mmo.moba.domain.Entity;
+import com.sm.mmo.moba.domain.message.EntityMovement;
+import com.sm.mmo.moba.domain.message.network.EntityMovementNetworkOutput;
+import com.sm.mmo.moba.domain.message.network.EntityPositionNetworkInput;
+import com.sm.mmo.moba.domain.message.network.NetworkInput;
 
 @ChannelHandler.Sharable
 public class EntityClientHandler extends ChannelInboundHandlerAdapter {
@@ -54,7 +54,13 @@ public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 		public void paint(Graphics g) {
 			super.paint(g);
 			g.setColor(Color.white);
-			g.fillRect(0, 0, 300, 300);
+			g.fillRect(0, 0, 500, 500);
+			
+			//draw view
+			if (me != null) {
+				g.setColor(Color.LIGHT_GRAY);
+				g.fillRect(me.getX() - 50, me.getY() - 50, 100, 100);
+			}
 			
 			g.setColor(Color.black);
 			synchronized(entitiesMap) {
@@ -74,6 +80,8 @@ public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 					g.fillRect((int)entity.getX() - 2, (int)entity.getY() - 2, 4, 4);
 				}
 			}
+			
+			
 		}
 
 		@Override
@@ -179,18 +187,33 @@ public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 	
 	private void handle(ClientEntityConnectedNetworkInput cecni, ChannelHandlerContext ctx) {
 		Entity ce = cecni.getEntityConnected().getEntity();
-		if (me == null) {
+		if (me == null && cecni.getEntityConnected().isCurrentPlayer()) {
 			me = new ConnectedPlayer(ctx);
 			me.setId(ce.getId());
 			contextClientMap.put(ctx, me);
 			entitiesMap.put(me.getId(), me);
 			entitiesCtxMap.put(me.getId(), ctx);
 			setupPanel();
-		} else if (!ce.getId().equals(me.getId())) {
+		} else {
 			entitiesMap.put(ce.getId(), ce);
 			entitiesCtxMap.put(ce.getId(), ctx);
 		}
 	}
+	
+	private void handle(ClientEntitySpawnNetworkInput entitySpawnNetworkInput, ChannelHandlerContext ctx) {
+		if (!entitiesMap.containsKey(entitySpawnNetworkInput.getEntitySpawn().getEntity().getId())) {
+			entitiesMap.put(entitySpawnNetworkInput.getEntitySpawn().getEntity().getId(), entitySpawnNetworkInput.getEntitySpawn().getEntity());
+		}
+	
+		Entity entity = entitiesMap.get(entitySpawnNetworkInput.getEntitySpawn().getEntity().getId());
+		entity.setX(entitySpawnNetworkInput.getEntitySpawn().getX());
+		entity.setY(entitySpawnNetworkInput.getEntitySpawn().getY());
+		entity.setRace(entitySpawnNetworkInput.getEntitySpawn().getRace());
+		frame.getContentPane().validate();
+		frame.getContentPane().repaint();
+	}
+	
+	
 	
 	@Override
     public void channelRead(ChannelHandlerContext ctx, Object objMsg) {
@@ -210,6 +233,9 @@ public class EntityClientHandler extends ChannelInboundHandlerAdapter {
 			} else if (input instanceof ClientEntityConnectedNetworkInput) {
 				handle((ClientEntityConnectedNetworkInput) input, ctx);
 
+			} else if (input instanceof ClientEntitySpawnNetworkInput) {
+				handle((ClientEntitySpawnNetworkInput) input, ctx);
+				
 			}
 		}
     }

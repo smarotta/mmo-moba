@@ -2,9 +2,9 @@ package com.sm.mmo.moba.client.messages;
 
 import java.util.Arrays;
 
-import org.com.sm.mmo.moba.domain.message.EntityMovement;
-import org.com.sm.mmo.moba.domain.message.network.EntityMovementNetworkOutput;
-import org.com.sm.mmo.moba.domain.message.network.helper.CodecHelper;
+import com.sm.mmo.moba.domain.message.EntityMovement;
+import com.sm.mmo.moba.domain.message.network.EntityMovementNetworkOutput;
+import com.sm.mmo.moba.domain.message.network.helper.CodecHelper;
 
 public class ClientEntityMovementNetworkOutput extends EntityMovementNetworkOutput {
 

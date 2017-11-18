@@ -4,9 +4,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
-import org.com.sm.mmo.moba.domain.message.network.NetworkMessage;
-import org.com.sm.mmo.moba.domain.message.network.NetworkOutput;
-
+import com.sm.mmo.moba.domain.message.network.EntityPositionNetworkOutput;
+import com.sm.mmo.moba.domain.message.network.EntitySpawnNetworkOutput;
+import com.sm.mmo.moba.domain.message.network.NetworkMessage;
+import com.sm.mmo.moba.domain.message.network.NetworkOutput;
 import com.sm.mmo.moba.gameserver.codec.NetworkMessageEncoder;
 
 public class GameWorldServerEncoder extends MessageToByteEncoder<NetworkMessage>{

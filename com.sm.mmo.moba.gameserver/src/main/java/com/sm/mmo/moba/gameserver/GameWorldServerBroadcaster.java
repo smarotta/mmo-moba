@@ -7,8 +7,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.com.sm.mmo.moba.domain.message.network.NetworkOutput;
-
+import com.sm.mmo.moba.domain.message.network.NetworkOutput;
 import com.sm.mmo.moba.gameserver.domain.ConnectedPlayer;
 
 public class GameWorldServerBroadcaster implements Runnable {

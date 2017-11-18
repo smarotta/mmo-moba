@@ -1,10 +1,10 @@
 package com.sm.mmo.moba.client.messages;
 
-import org.com.sm.mmo.moba.domain.Entity;
-import org.com.sm.mmo.moba.domain.message.EntityPosition;
-import org.com.sm.mmo.moba.domain.message.network.EntityPositionNetworkInput;
-import org.com.sm.mmo.moba.domain.message.network.EntityPositionNetworkOutput;
-import org.com.sm.mmo.moba.domain.message.network.helper.CodecHelper;
+import com.sm.mmo.moba.domain.Entity;
+import com.sm.mmo.moba.domain.message.EntityPosition;
+import com.sm.mmo.moba.domain.message.network.EntityPositionNetworkInput;
+import com.sm.mmo.moba.domain.message.network.EntityPositionNetworkOutput;
+import com.sm.mmo.moba.domain.message.network.helper.CodecHelper;
 
 public class ClientEntityPositionNetworkInput extends EntityPositionNetworkInput {
 

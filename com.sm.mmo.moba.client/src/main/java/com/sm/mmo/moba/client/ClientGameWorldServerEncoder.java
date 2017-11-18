@@ -4,10 +4,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
-import org.com.sm.mmo.moba.domain.message.network.NetworkMessage;
-import org.com.sm.mmo.moba.domain.message.network.NetworkOutput;
-
 import com.sm.mmo.moba.client.codec.ClientNetworkMessageEncoder;
+import com.sm.mmo.moba.domain.message.network.NetworkMessage;
+import com.sm.mmo.moba.domain.message.network.NetworkOutput;
 
 public class ClientGameWorldServerEncoder extends MessageToByteEncoder<NetworkMessage>{
 	
@@ -23,7 +22,7 @@ public class ClientGameWorldServerEncoder extends MessageToByteEncoder<NetworkMe
 	protected void encode(ChannelHandlerContext ctx, NetworkMessage msg, ByteBuf out) throws Exception {
 		if (msg instanceof NetworkOutput) {
 			byte [] data = ClientNetworkMessageEncoder.encode((NetworkOutput)msg);
-			System.out.println("Server -> Client: " + debug(data));
+			//System.out.println("Server -> Client: " + debug(data));
 			out.writeBytes(data);
 		}
 	}

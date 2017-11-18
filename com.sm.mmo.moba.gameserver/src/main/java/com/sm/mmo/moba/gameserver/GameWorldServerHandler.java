@@ -10,28 +10,27 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.com.sm.mmo.moba.domain.Entity;
-import org.com.sm.mmo.moba.domain.message.EntityConnected;
-import org.com.sm.mmo.moba.domain.message.EntityDisconnected;
-import org.com.sm.mmo.moba.domain.message.EntityPosition;
-import org.com.sm.mmo.moba.domain.message.EntityUpdate;
-import org.com.sm.mmo.moba.domain.message.network.EntityConnectedNetworkOutput;
-import org.com.sm.mmo.moba.domain.message.network.EntityPositionNetworkOutput;
-import org.com.sm.mmo.moba.domain.message.network.NetworkInput;
-import org.com.sm.mmo.moba.domain.message.network.NetworkOutput;
-import org.com.sm.mmo.moba.qnfsm.FSMFeeder;
-import org.com.sm.mmo.moba.qnfsm.FSMFeederController;
-import org.com.sm.mmo.moba.qnfsm.FSMFeeder.Type;
-import org.com.sm.mmo.moba.qnfsm.feeder.EntityMovementFSMFeeder;
-import org.com.sm.mmo.moba.qnfsm.feeder.GameLogicFSMFeeder;
-import org.com.sm.mmo.moba.qnfsm.feeder.NetworkFSMFeeder;
-import org.com.sm.mmo.moba.qnfsm.fsm.EntityMovementFSM;
-import org.com.sm.mmo.moba.qnfsm.fsm.GameLogicFSM;
-import org.com.sm.mmo.moba.qnfsm.fsm.NetworkFSM;
-import org.com.sm.mmo.moba.qnfsm.fsm.NetworkFSM.NetworkHandler;
-
+import com.sm.mmo.moba.domain.Entity;
+import com.sm.mmo.moba.domain.message.EntityConnected;
+import com.sm.mmo.moba.domain.message.EntityDisconnected;
+import com.sm.mmo.moba.domain.message.EntityPosition;
+import com.sm.mmo.moba.domain.message.EntityUpdate;
+import com.sm.mmo.moba.domain.message.network.EntityConnectedNetworkOutput;
+import com.sm.mmo.moba.domain.message.network.EntityPositionNetworkOutput;
+import com.sm.mmo.moba.domain.message.network.NetworkInput;
+import com.sm.mmo.moba.domain.message.network.NetworkOutput;
 import com.sm.mmo.moba.gameserver.domain.ConnectedPlayer;
 import com.sm.mmo.moba.gameserver.domain.ConnectedPlayersBag;
+import com.sm.mmo.moba.qnfsm.FSMFeeder;
+import com.sm.mmo.moba.qnfsm.FSMFeederController;
+import com.sm.mmo.moba.qnfsm.FSMFeeder.Type;
+import com.sm.mmo.moba.qnfsm.feeder.MovementFSMFeeder;
+import com.sm.mmo.moba.qnfsm.feeder.GameLogicFSMFeeder;
+import com.sm.mmo.moba.qnfsm.feeder.NetworkFSMFeeder;
+import com.sm.mmo.moba.qnfsm.fsm.MovementFSM;
+import com.sm.mmo.moba.qnfsm.fsm.GameLogicFSM;
+import com.sm.mmo.moba.qnfsm.fsm.NetworkFSM;
+import com.sm.mmo.moba.qnfsm.fsm.NetworkFSM.NetworkHandler;
 
 @Sharable
 public class GameWorldServerHandler extends ChannelInboundHandlerAdapter implements NetworkHandler {
@@ -49,11 +48,11 @@ public class GameWorldServerHandler extends ChannelInboundHandlerAdapter impleme
 	
 	private void initializeFSM() {
 		fsmController = new FSMFeederController();
-		EntityMovementFSM emFSM = new EntityMovementFSM(fsmController);
+		MovementFSM emFSM = new MovementFSM(fsmController);
 		GameLogicFSM gmFSM = new GameLogicFSM(fsmController);
 		NetworkFSM networkFSM = new NetworkFSM(fsmController, this);
 		
-		fsmController.register(new EntityMovementFSMFeeder(UUID.randomUUID(), emFSM, fsmController));
+		fsmController.register(new MovementFSMFeeder(UUID.randomUUID(), emFSM, fsmController));
 		fsmController.register(new GameLogicFSMFeeder(UUID.randomUUID(), gmFSM, fsmController));
 		fsmController.register(new NetworkFSMFeeder(UUID.randomUUID(), networkFSM, fsmController));
 		

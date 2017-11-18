@@ -1,6 +1,6 @@
 package com.sm.mmo.moba.gameserver.codec;
 
-import org.com.sm.mmo.moba.domain.message.network.NetworkOutput;
+import com.sm.mmo.moba.domain.message.network.NetworkOutput;
 
 public class NetworkMessageEncoder {
 

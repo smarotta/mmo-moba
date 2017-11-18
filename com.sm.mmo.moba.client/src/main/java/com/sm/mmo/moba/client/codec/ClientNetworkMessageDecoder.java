@@ -1,9 +1,8 @@
 package com.sm.mmo.moba.client.codec;
 
-import org.com.sm.mmo.moba.domain.Message;
-import org.com.sm.mmo.moba.domain.message.network.NetworkMessage;
-
 import com.sm.mmo.moba.client.ByteHelper;
+import com.sm.mmo.moba.domain.Message;
+import com.sm.mmo.moba.domain.message.network.NetworkMessage;
 
 import io.netty.buffer.ByteBuf;
 

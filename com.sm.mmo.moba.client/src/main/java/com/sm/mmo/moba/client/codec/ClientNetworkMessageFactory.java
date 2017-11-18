@@ -1,20 +1,21 @@
 package com.sm.mmo.moba.client.codec;
 
-import org.com.sm.mmo.moba.domain.Message;
-import org.com.sm.mmo.moba.domain.message.EntityConnected;
-import org.com.sm.mmo.moba.domain.message.EntityDisconnected;
-import org.com.sm.mmo.moba.domain.message.EntityMovement;
-import org.com.sm.mmo.moba.domain.message.EntityPosition;
-import org.com.sm.mmo.moba.domain.message.network.EntityMovementNetworkInput;
-import org.com.sm.mmo.moba.domain.message.network.EntityPositionNetworkInput;
-import org.com.sm.mmo.moba.domain.message.network.NetworkMessage;
-import org.com.sm.mmo.moba.domain.message.network.NetworkOutput;
-import org.com.sm.mmo.moba.domain.message.network.UnrecognizedNetworkInput;
-
 import com.sm.mmo.moba.client.ByteHelper;
 import com.sm.mmo.moba.client.messages.ClientEntityConnectedNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntityMovementNetworkInput;
 import com.sm.mmo.moba.client.messages.ClientEntityPositionNetworkInput;
+import com.sm.mmo.moba.client.messages.ClientEntitySpawnNetworkInput;
+import com.sm.mmo.moba.domain.Message;
+import com.sm.mmo.moba.domain.message.EntityConnected;
+import com.sm.mmo.moba.domain.message.EntityDisconnected;
+import com.sm.mmo.moba.domain.message.EntityMovement;
+import com.sm.mmo.moba.domain.message.EntityPosition;
+import com.sm.mmo.moba.domain.message.EntitySpawn;
+import com.sm.mmo.moba.domain.message.network.EntityMovementNetworkInput;
+import com.sm.mmo.moba.domain.message.network.EntityPositionNetworkInput;
+import com.sm.mmo.moba.domain.message.network.NetworkMessage;
+import com.sm.mmo.moba.domain.message.network.NetworkOutput;
+import com.sm.mmo.moba.domain.message.network.UnrecognizedNetworkInput;
 
 public class ClientNetworkMessageFactory {
 
@@ -62,6 +63,12 @@ public class ClientNetworkMessageFactory {
 				ClientEntityPositionNetworkInput entityPosition = new ClientEntityPositionNetworkInput(new EntityPosition());
 				entityPosition.deserialize(bucket);
 				message = entityPosition;
+			break;
+			
+			case ENTITY_SPAWN:
+				ClientEntitySpawnNetworkInput entitySpawn = new ClientEntitySpawnNetworkInput(new EntitySpawn());
+				entitySpawn.deserialize(bucket);
+				message = entitySpawn;
 			break;
 			
 			case INTERNAL:

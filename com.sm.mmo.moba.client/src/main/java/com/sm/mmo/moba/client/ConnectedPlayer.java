@@ -2,7 +2,7 @@ package com.sm.mmo.moba.client;
 
 import io.netty.channel.ChannelHandlerContext;
 
-import org.com.sm.mmo.moba.domain.Entity;
+import com.sm.mmo.moba.domain.Entity;
 
 public class ConnectedPlayer extends Entity {
 

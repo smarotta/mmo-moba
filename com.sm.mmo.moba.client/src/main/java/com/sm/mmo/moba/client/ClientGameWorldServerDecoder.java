@@ -31,7 +31,7 @@ public class ClientGameWorldServerDecoder extends LengthFieldBasedFrameDecoder {
 	protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
 		ByteBuf frame = (ByteBuf) super.decode(ctx, in);
 		if (frame != null) {
-			System.out.println("Client <- Server: " + debug(frame));
+			//System.out.println("Client <- Server: " + debug(frame));
 			return ClientNetworkMessageDecoder.decode(frame);
 		} else {
 			return null;

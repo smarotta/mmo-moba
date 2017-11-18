@@ -1,9 +1,9 @@
 package com.sm.mmo.moba.client.messages;
 
-import org.com.sm.mmo.moba.domain.Entity;
-import org.com.sm.mmo.moba.domain.message.EntityConnected;
-import org.com.sm.mmo.moba.domain.message.network.NetworkInput;
-import org.com.sm.mmo.moba.domain.message.network.helper.CodecHelper;
+import com.sm.mmo.moba.domain.Entity;
+import com.sm.mmo.moba.domain.message.EntityConnected;
+import com.sm.mmo.moba.domain.message.network.NetworkInput;
+import com.sm.mmo.moba.domain.message.network.helper.CodecHelper;
 
 public class ClientEntityConnectedNetworkInput extends NetworkInput {
 
@@ -33,9 +33,10 @@ public class ClientEntityConnectedNetworkInput extends NetworkInput {
 
 	@Override
 	public void deserialize(byte[] packet) {
-		// C1 XX XX 01 [ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID]
+		// C1 XX XX 01 [ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID] [MK]
 		entityConnected.setEntity(new Entity());
 		entityConnected.getEntity().setId(CodecHelper.readUUID(packet, 4));
+		entityConnected.setCurrentPlayer(packet[4 + 16] > 0);
 	}
 
 	

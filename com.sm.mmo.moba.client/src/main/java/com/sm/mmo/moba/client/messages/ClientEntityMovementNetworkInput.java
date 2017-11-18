@@ -1,9 +1,9 @@
 package com.sm.mmo.moba.client.messages;
 
-import org.com.sm.mmo.moba.domain.Entity;
-import org.com.sm.mmo.moba.domain.message.EntityMovement;
-import org.com.sm.mmo.moba.domain.message.network.EntityMovementNetworkInput;
-import org.com.sm.mmo.moba.domain.message.network.helper.CodecHelper;
+import com.sm.mmo.moba.domain.Entity;
+import com.sm.mmo.moba.domain.message.EntityMovement;
+import com.sm.mmo.moba.domain.message.network.EntityMovementNetworkInput;
+import com.sm.mmo.moba.domain.message.network.helper.CodecHelper;
 
 public class ClientEntityMovementNetworkInput extends EntityMovementNetworkInput {
 
