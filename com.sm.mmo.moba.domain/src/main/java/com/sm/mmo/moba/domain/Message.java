@@ -11,6 +11,15 @@ public abstract class Message {
 		ENTITY_CONNECTED(0x01),
 		ENTITY_DISCONNECTED(0x02),
 		
+		
+		/** new ones **/
+		ENTITY_POSITION_SETUP(0xA3),
+		ENTITY_MEET(0xA4),
+		ENTITY_DAMAGE(0xB0),
+		ENTITY_DEATH(0xB1),
+		
+		
+		
 		UNKNOWN(0x00),
 		INTERNAL(0xFF);
 		
