@@ -25,15 +25,15 @@ Size Descriptor | Size Value | Message ID | Entity UUID                         
 --------------- | ---------- | ---------- | ----------------------------------------------- | -----------
 C1              | XX XX      | B0         | ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID | DG
 
-After the Damage integer you will get a combination byte to determine the damage type:
-b10000000 = health
-b01000000 = mana
-b00100000 = stamina
-b00010000 = N/A (maybe wearable damage: clothing, armor, boots, etc)
-b00001000 = N/A (maybe equipable damage: staff, sword, etc)
-b00000100 = N/A
-b00000010 = N/A
-b00000001 = N/A
+After the Damage integer you will get a combination byte to determine the damage type:  
+b10000000 = health  
+b01000000 = mana  
+b00100000 = stamina  
+b00010000 = N/A (maybe wearable damage: clothing, armor, boots, etc)  
+b00001000 = N/A (maybe equipable damage: staff, sword, etc)  
+b00000100 = N/A  
+b00000010 = N/A  
+b00000001 = N/A  
 
 Each binary mask hit will have it's own preset of packet sizes (always in the order described above from top to bottom)
 
@@ -49,10 +49,11 @@ Size Descriptor | Size Value | Message ID | Entity UUID                         
 --------------- | ---------- | ---------- | ----------------------------------------------- | ----------------------------------------------- | ---------------------
 C1              | XX XX      | B1         | ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID | ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID ID | IC         
 
-For each item dropped:
-Item Package Size | Position X  | Position Y  | Item details (size vary) 
------------------ | ----------- | ----------- | -------------------------
-IS IS             | XX XX XX XX | YY YY YY YY | ID ID ID ID ID ID ID ID         
+For each item dropped:  
+
+| Item Package Size | Position X  | Position Y  | Item details (size vary)  |
+| ----------------- | ----------- | ----------- | ------------------------- |
+| IS IS             | XX XX XX XX | YY YY YY YY | ID ID ID ID ID ID ID ID   |    
 
 **Entity meet** 
 
