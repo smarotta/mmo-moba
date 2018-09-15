@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package messages;
+
+option java_package = "com.sm.mmo.moba.network.protobuf";
+option java_outer_classname = "EntityProtos";
+
+import "positions.proto";
+import "items.proto";
+
+message Entity {
+	int32 type = 1; //mob, player, npc
+	int32 race = 2; //mob: horse, dragon, plant; player: elf, human, orc; npc: vendor, blacksmith, etc
+
+	int32 hp = 3;
+	int32 mana = 4;
+	string name = 5;
+	int32 level = 6;
+
+	repeated EntityItem items = 7;
+}
+
+message EntityItem {
+	int32 slot = 1; //hand, head, feet, inventory, etc
+	Item item = 2; //katana, shotgun, pants
+}
+
+message EntitySpawned {
+	int32 id = 1; //unique id of this entity in the current world connected (room, map section, lobby)
+	Position position = 2;
+	Entity entity = 3;
+}
+
+message EntityDestroyed {
+	int32 id = 1; //unique id of this entity in the current world connected (room, map section, lobby)
+}
+
+message EntityMoved {
+	int32 id = 1;
+	int32 delay = 2;
+	Position source = 3;
+	Position destination = 4;
+}

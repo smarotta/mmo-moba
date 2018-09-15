@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package messages;
+
+option java_package = "com.sm.mmo.moba.network.protobuf";
+option java_outer_classname = "ItemProtos";
+
+import "positions.proto";
+
+message Item {
+	int32 id = 1; //unique id of the item (so the server/client knows what item the user is picking up for example)
+	int32 type = 2; //shotgun, armor, boots, potion, etc
+	repeated ItemAttribute attributes = 3;
+}
+
+message ItemSpawned {
+	Position position = 1;
+	Item item = 2;
+}
+
+message ItemAttribute {
+	int32 attribute = 1; //speed, attack damage, magic
+	oneof value {
+		bool boolVal = 2;
+		int32 intVal = 3;
+		float floatVal = 4;
+		string stringVal = 5;
+	}
+}

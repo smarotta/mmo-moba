@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package messages;
+
+option java_package = "com.sm.mmo.moba.network.protobuf";
+option java_outer_classname = "PlayerProtos";
+
+import "entities.proto";
+
+message PlayerConnected {
+	int32 id = 1;
+	EntitySpawned entitySpawned = 8;
+}
