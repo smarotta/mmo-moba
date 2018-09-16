@@ -21,10 +21,6 @@ public abstract class FSM {
 		broadcaster.sendMessage(type, msg);
 	}
 	
-	public void sendMessage(Type type, Message msg, long scheduledTimeStamp) {
-		broadcaster.sendMessage(type, msg, scheduledTimeStamp);
-	}
-	
 	abstract protected void processInput(Message msg);
 	
 }

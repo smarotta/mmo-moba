@@ -1,16 +1,14 @@
 package com.sm.mmo.moba.domain;
 
-import java.util.UUID;
-
 public abstract class Identifiable {
 
-	private UUID id;
+	private int id;
 
-	public UUID getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(UUID id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 }

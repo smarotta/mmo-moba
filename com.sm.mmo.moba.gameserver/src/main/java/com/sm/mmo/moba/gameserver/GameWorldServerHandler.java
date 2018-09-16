@@ -1,51 +1,33 @@
 package com.sm.mmo.moba.gameserver;
 
+import java.util.List;
+
+import com.google.protobuf.Message;
+import com.sm.mmo.moba.domain.ConnectedPlayer;
+import com.sm.mmo.moba.domain.message.EntityConnected;
+import com.sm.mmo.moba.domain.message.NetworkInput;
+import com.sm.mmo.moba.domain.message.NetworkOutput;
+import com.sm.mmo.moba.gameserver.domain.ConnectedPlayersBag;
+import com.sm.mmo.moba.network.protobuf.EntityProtos.EntityDestroyed;
+import com.sm.mmo.moba.qnfsm.FSMFeeder;
+import com.sm.mmo.moba.qnfsm.FSMFeederController;
+
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.sm.mmo.moba.domain.Entity;
-import com.sm.mmo.moba.domain.message.EntityConnected;
-import com.sm.mmo.moba.domain.message.EntityDisconnected;
-import com.sm.mmo.moba.domain.message.EntityPosition;
-import com.sm.mmo.moba.domain.message.EntityUpdate;
-import com.sm.mmo.moba.domain.message.network.EntityConnectedNetworkOutput;
-import com.sm.mmo.moba.domain.message.network.EntityPositionNetworkOutput;
-import com.sm.mmo.moba.domain.message.network.NetworkInput;
-import com.sm.mmo.moba.domain.message.network.NetworkOutput;
-import com.sm.mmo.moba.gameserver.domain.ConnectedPlayer;
-import com.sm.mmo.moba.gameserver.domain.ConnectedPlayersBag;
-import com.sm.mmo.moba.qnfsm.FSMFeeder;
-import com.sm.mmo.moba.qnfsm.FSMFeederController;
-import com.sm.mmo.moba.qnfsm.FSMFeeder.Type;
-import com.sm.mmo.moba.qnfsm.feeder.MovementFSMFeeder;
-import com.sm.mmo.moba.qnfsm.feeder.GameLogicFSMFeeder;
-import com.sm.mmo.moba.qnfsm.feeder.NetworkFSMFeeder;
-import com.sm.mmo.moba.qnfsm.fsm.MovementFSM;
-import com.sm.mmo.moba.qnfsm.fsm.GameLogicFSM;
-import com.sm.mmo.moba.qnfsm.fsm.NetworkFSM;
-import com.sm.mmo.moba.qnfsm.fsm.NetworkFSM.NetworkHandler;
-
 @Sharable
-public class GameWorldServerHandler extends ChannelInboundHandlerAdapter implements NetworkHandler {
+public class GameWorldServerHandler extends ChannelInboundHandlerAdapter /*implements NetworkHandler*/ {
 	
 	private final ConnectedPlayersBag players = new ConnectedPlayersBag();
-	private GameWorldServerBroadcaster broadcaster;
 	private FSMFeederController fsmController;
 	
 	public GameWorldServerHandler() {
 		super();
-		this.broadcaster = new GameWorldServerBroadcaster(this);
-		new Thread(this.broadcaster).start();
-		initializeFSM();
+		//initializeFSM();
 	}
 	
+	/*
 	private void initializeFSM() {
 		fsmController = new FSMFeederController();
 		MovementFSM emFSM = new MovementFSM(fsmController);
@@ -57,16 +39,16 @@ public class GameWorldServerHandler extends ChannelInboundHandlerAdapter impleme
 		fsmController.register(new NetworkFSMFeeder(UUID.randomUUID(), networkFSM, fsmController));
 		
 	}
+	*/
 	
 	private void removeConnectedPlayer(ChannelHandlerContext ctx) {
-		ConnectedPlayer player = players.getPlayerByContext(ctx);
+		ConnectedPlayer<ChannelHandlerContext> player = players.getPlayerByContext(ctx);
 		if (player != null) {
 			players.remove(ctx);
-			
-			//let the FSM know about the disconnected player
-			EntityDisconnected ed = new EntityDisconnected();
-			ed.setEntity(player);
-			fsmController.sendMessage(FSMFeeder.Type.FSM_NETWORK, ed);
+			NetworkInput<ConnectedPlayer<ChannelHandlerContext>, EntityDestroyed> message = 
+					new NetworkInput<ConnectedPlayer<ChannelHandlerContext>, EntityDestroyed>(
+							player, EntityDestroyed.newBuilder().setId(player.getId()).build());
+			fsmController.sendMessage(FSMFeeder.Type.FSM_NETWORK, message);
 		}
 	}
 	
@@ -80,8 +62,8 @@ public class GameWorldServerHandler extends ChannelInboundHandlerAdapter impleme
 	public synchronized void channelActive(ChannelHandlerContext ctx) throws Exception {
 		System.out.println("Sombebody connected to me!");
 		//super.channelActive(ctx);
-		ConnectedPlayer player = new ConnectedPlayer(ctx);
-		player.setId(UUID.randomUUID());
+		ConnectedPlayer<ChannelHandlerContext> player = new ConnectedPlayer<ChannelHandlerContext>(ctx);
+		player.setId((int)(Math.random()*Integer.MAX_VALUE));
 		players.add(ctx, player);
 		
 		//let the FSM know about the new player
@@ -93,12 +75,13 @@ public class GameWorldServerHandler extends ChannelInboundHandlerAdapter impleme
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object objMsg) {
 		//super.channelRead(ctx, objMsg);
-		if (objMsg instanceof NetworkInput) {
-			NetworkInput input = (NetworkInput) objMsg;
-			ConnectedPlayer player = players.getPlayerByContext(ctx);
+		if (objMsg instanceof Message) {
+			Message input = (Message) objMsg;
+			ConnectedPlayer<ChannelHandlerContext> player = players.getPlayerByContext(ctx);
 			if (player != null) {
-				input.setSource(player);
-				fsmController.sendMessage(FSMFeeder.Type.FSM_NETWORK, input);
+				NetworkInput<ConnectedPlayer<ChannelHandlerContext>, Message> message = 
+						new NetworkInput<ConnectedPlayer<ChannelHandlerContext>, Message>(player, input);
+				fsmController.sendMessage(FSMFeeder.Type.FSM_NETWORK, message);
 			}
 		}
 	}
@@ -109,17 +92,18 @@ public class GameWorldServerHandler extends ChannelInboundHandlerAdapter impleme
 		removeConnectedPlayer(ctx);
 	}
 	
-	public void writeToConnectedPlayers(Set<ConnectedPlayer> players, List<NetworkOutput> commands) {
-		for(ConnectedPlayer player:players) {
-			for(NetworkOutput command:commands) {
-				player.getContext().write(command);
-			}
-			player.getContext().flush();
+	public void writeToConnectedPlayers(List<NetworkOutput<ConnectedPlayer<ChannelHandlerContext>, Message>> commands) {
+		for(NetworkOutput<ConnectedPlayer<ChannelHandlerContext>, Message> command:commands) {
+			command.getDestination().getConnection().write(command.getRawMessage());
+		}
+		for(NetworkOutput<ConnectedPlayer<ChannelHandlerContext>, Message> command:commands) {
+			command.getDestination().getConnection().flush();
 		}
 	}
 
+	/*
 	@Override
-	public void sendMessage(Entity entity, NetworkOutput out) {
+	public void sendMessage(Entity entity, Object out) {
 		ChannelHandlerContext chc = players.getContextByPlayerId(entity.getId());
 		if (chc != null) {
 			chc.writeAndFlush(out);
@@ -133,4 +117,5 @@ public class GameWorldServerHandler extends ChannelInboundHandlerAdapter impleme
 			chc.disconnect();
 		}
 	}
+	*/
 }

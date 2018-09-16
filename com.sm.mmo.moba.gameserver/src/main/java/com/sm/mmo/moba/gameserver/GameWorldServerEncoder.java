@@ -4,13 +4,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
-import com.sm.mmo.moba.domain.message.network.EntityPositionNetworkOutput;
-import com.sm.mmo.moba.domain.message.network.EntitySpawnNetworkOutput;
-import com.sm.mmo.moba.domain.message.network.NetworkMessage;
-import com.sm.mmo.moba.domain.message.network.NetworkOutput;
+import com.google.protobuf.Message;
 import com.sm.mmo.moba.gameserver.codec.NetworkMessageEncoder;
 
-public class GameWorldServerEncoder extends MessageToByteEncoder<NetworkMessage>{
+public class GameWorldServerEncoder extends MessageToByteEncoder<Message>{
 	
 	public String debug(byte [] data) {
 		StringBuilder sb = new StringBuilder();
@@ -21,12 +18,10 @@ public class GameWorldServerEncoder extends MessageToByteEncoder<NetworkMessage>
 	}
 	
 	@Override
-	protected void encode(ChannelHandlerContext ctx, NetworkMessage msg, ByteBuf out) throws Exception {
-		if (msg instanceof NetworkOutput) {
-			byte [] data = NetworkMessageEncoder.encode((NetworkOutput)msg);
-			System.out.println("Server -> Client: " + debug(data));
-			out.writeBytes(data);
-		}
+	protected void encode(ChannelHandlerContext ctx, Message message, ByteBuf out) throws Exception {
+		NetworkMessageEncoder.encode(message, out);
+		System.out.println("Server -> Client: " + debug(out.asReadOnly().array()));
+		
 	}
 	
 }

@@ -4,6 +4,9 @@ package com.sm.mmo.moba.domain;
 public abstract class Message {
 
 	public static enum MessageType {
+		NETWORK_INPUT(0x01),
+		NETWORK_OUTPUT(0x02),
+		
 		ENTITY_SPAWN(0xA0),
 		ENTITY_MOVEMENT(0xA1),
 		ENTITY_POSITION(0xA2),

@@ -1,30 +1,39 @@
 package com.sm.mmo.moba.gameserver.codec;
 
-import com.sm.mmo.moba.domain.Message;
-import com.sm.mmo.moba.domain.message.network.NetworkMessage;
+import com.google.protobuf.InvalidProtocolBufferException;
+//import com.sm.mmo.moba.domain.Message;
+//import com.sm.mmo.moba.domain.message.network.NetworkMessage;
+import com.google.protobuf.Message;
+import com.sm.mmo.moba.network.MessageCodec;
 
 import io.netty.buffer.ByteBuf;
 
 public class NetworkMessageDecoder {
 
-	public static Message decode(ByteBuf buffer) {
-		//read to a byte array
+	public static Message decode(ByteBuf buffer) throws InvalidProtocolBufferException {
 		byte [] bucket = readPackageFromBuffer(buffer);
-		
-		//read the type
-		NetworkMessage.SizeHeader sizeHeader = NetworkMessage.SizeHeader.getTypeForValue(bucket[0]);
-		
-		//call the factory with the actual type to give a hint to it of wth this package is about
-		return NetworkMessageFactory.deserialize(sizeHeader, bucket);
+		return MessageCodec.decode(bucket);
 	}
 	
-	private static int getNumberOfBytesDescribingLength(ByteBuf buffer) {
-		return (int) Math.round(Math.pow(2, (buffer.getUnsignedByte(0) - 0xC0)));
-	}
-	
+	/**
+	 * ND DL DL TP TP DT DT DT DT DT DT
+	 * HEADERS:
+	 *  - ND: number of bytes describing lenght
+	 *  - DL DL: bytes describing length
+	 * CONTENT:
+	 *  - TP TP: bytes describing type
+	 *  - DT DT DT DT DT DT: data
+	 * @param buffer
+	 * @return
+	 */
 	private static byte [] readPackageFromBuffer(ByteBuf buffer) {
-		int length = getPackageSize(buffer, getNumberOfBytesDescribingLength(buffer));
-		byte [] array = new byte [length];
+		int numberOfBytesDescribingLength = buffer.getUnsignedByte(0);
+		int packageSize = getPackageSize(buffer, numberOfBytesDescribingLength);
+		int headerSize = numberOfBytesDescribingLength + 1;
+		int packageSizeWithoutHeaders = packageSize - headerSize;
+		
+		byte [] array = new byte [packageSizeWithoutHeaders];
+		buffer.readerIndex(headerSize);
 		buffer.readBytes(array);
 		return array;
 	}	

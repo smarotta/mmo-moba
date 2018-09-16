@@ -1,10 +1,10 @@
-package com.sm.mmo.moba.domain.message.network.helper;
+package com.sm.mmo.moba.network;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
-public class CodecHelper {
+public class MessageCodecHelper {
 	
 	private final static int LONG_SIZE = Long.SIZE / 8;
 	private final static int INT_SIZE = Integer.SIZE / 8;
@@ -27,7 +27,7 @@ public class CodecHelper {
 	}
 	
 	public static long readLong(byte [] data) {
-		ByteBuffer buffer = ByteBuffer.allocate(data.length);
+		ByteBuffer buffer = ByteBuffer.allocate(LONG_SIZE);
 		buffer.put(data);
 		buffer.flip();
 		return buffer.getLong();
@@ -56,7 +56,7 @@ public class CodecHelper {
 	}
 	
 	public static int readInt(byte [] data) {
-		ByteBuffer buffer = ByteBuffer.allocate(data.length);
+		ByteBuffer buffer = ByteBuffer.allocate(INT_SIZE);
 		buffer.put(data);
 		buffer.flip();
 		return buffer.getInt();
@@ -85,7 +85,7 @@ public class CodecHelper {
 	}
 	
 	public static int readShort(byte [] data) {
-		ByteBuffer buffer = ByteBuffer.allocate(data.length);
+		ByteBuffer buffer = ByteBuffer.allocate(SHORT_SIZE);
 		buffer.put(data);
 		buffer.flip();
 		return buffer.getShort();
@@ -125,15 +125,15 @@ public class CodecHelper {
 	}
 	
 	public static UUID readUUID(byte [] data) {
-		long msb = CodecHelper.readLong(data, 0);
-		long lsb = CodecHelper.readLong(data, 8);
+		long msb = MessageCodecHelper.readLong(data, 0);
+		long lsb = MessageCodecHelper.readLong(data, 8);
 		
 		return new UUID(msb, lsb);
 	}
 	
 	public static UUID readUUID(byte [] data, int start) {
-		long msb = CodecHelper.readLong(data, start);
-		long lsb = CodecHelper.readLong(data, start + 8);
+		long msb = MessageCodecHelper.readLong(data, start);
+		long lsb = MessageCodecHelper.readLong(data, start + 8);
 		
 		return new UUID(msb, lsb);
 	}

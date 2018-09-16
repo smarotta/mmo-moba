@@ -17,6 +17,12 @@
 		
 		<dependency>
 			<groupId>com.sm.mmo.moba</groupId>
+			<artifactId>com.sm.mmo.moba.network</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.sm.mmo.moba</groupId>
 			<artifactId>com.sm.mmo.moba.qnfsm</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

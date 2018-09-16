@@ -24,7 +24,7 @@ public class AbstractSpatialProcessor {
 					entity.getY() - proximityDimension.height/2, 
 					proximityDimension.width, 
 					proximityDimension.height);
-		entities.removeIf(e -> e.getId().equals(entity.getId()));
+		entities.removeIf(e -> e.getId() == entity.getId());
 		return entities;
 	}
 	

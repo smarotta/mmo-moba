@@ -2,59 +2,60 @@ package com.sm.mmo.moba.gameserver.domain;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.sm.mmo.moba.domain.ConnectedPlayer;
 
 import io.netty.channel.ChannelHandlerContext;
 
 public class ConnectedPlayersBag {
-	private Map<ChannelHandlerContext, ConnectedPlayer> contextClientMap;
-	private Map<UUID, ConnectedPlayer> connectedPlayerIdMap;
-	private Map<UUID, ChannelHandlerContext> connectedPlayerContextMap;
+	private Map<ChannelHandlerContext, ConnectedPlayer<ChannelHandlerContext>> contextClientMap;
+	private Map<Integer, ConnectedPlayer<ChannelHandlerContext>> connectedPlayerIdMap;
+	private Map<Integer, ChannelHandlerContext> connectedPlayerContextMap;
 	
 	
 	public ConnectedPlayersBag() {
-		contextClientMap = new ConcurrentHashMap<ChannelHandlerContext, ConnectedPlayer>();
-		connectedPlayerIdMap = new ConcurrentHashMap<UUID, ConnectedPlayer>();
-		connectedPlayerContextMap = new ConcurrentHashMap<UUID, ChannelHandlerContext>();
+		contextClientMap = new ConcurrentHashMap<ChannelHandlerContext, ConnectedPlayer<ChannelHandlerContext>>();
+		connectedPlayerIdMap = new ConcurrentHashMap<Integer, ConnectedPlayer<ChannelHandlerContext>>();
+		connectedPlayerContextMap = new ConcurrentHashMap<Integer, ChannelHandlerContext>();
 	}
 	
-	private ConnectedPlayersBag(Map<ChannelHandlerContext, ConnectedPlayer> contextClientMap, 
-			Map<UUID, ConnectedPlayer> connectedPlayerIdMap, 
-			Map<UUID, ChannelHandlerContext> connectedPlayerContextMap) {
-		this.contextClientMap = new HashMap<ChannelHandlerContext, ConnectedPlayer>(contextClientMap);
-		this.connectedPlayerIdMap = new HashMap<UUID, ConnectedPlayer>(connectedPlayerIdMap);
-		this.connectedPlayerContextMap = new HashMap<UUID, ChannelHandlerContext>(connectedPlayerContextMap);
+	private ConnectedPlayersBag(Map<ChannelHandlerContext, ConnectedPlayer<ChannelHandlerContext>> contextClientMap, 
+			Map<Integer, ConnectedPlayer<ChannelHandlerContext>> connectedPlayerIdMap, 
+			Map<Integer, ChannelHandlerContext> connectedPlayerContextMap) {
+		this.contextClientMap = new HashMap<ChannelHandlerContext, ConnectedPlayer<ChannelHandlerContext>>(contextClientMap);
+		this.connectedPlayerIdMap = new HashMap<Integer, ConnectedPlayer<ChannelHandlerContext>>(connectedPlayerIdMap);
+		this.connectedPlayerContextMap = new HashMap<Integer, ChannelHandlerContext>(connectedPlayerContextMap);
 	}
 	
-	public ConnectedPlayer getPlayerByContext(ChannelHandlerContext chc) {
+	public ConnectedPlayer<ChannelHandlerContext> getPlayerByContext(ChannelHandlerContext chc) {
 		return contextClientMap.get(chc);
 	}
 	
-	public ChannelHandlerContext getContextByPlayer(ConnectedPlayer player) {
+	public ChannelHandlerContext getContextByPlayer(ConnectedPlayer<ChannelHandlerContext> player) {
 		return connectedPlayerContextMap.get(player.getId());
 	}
 	
-	public ChannelHandlerContext getContextByPlayerId(UUID id) {
-		ConnectedPlayer player = connectedPlayerIdMap.get(id);
+	public ChannelHandlerContext getContextByPlayerId(Integer id) {
+		ConnectedPlayer<ChannelHandlerContext> player = connectedPlayerIdMap.get(id);
 		if (player != null) {
 			return getContextByPlayer(player);
 		}
 		return null;
 	}
 	
-	public ConnectedPlayer getPlayerById(UUID id) {
+	public ConnectedPlayer<ChannelHandlerContext> getPlayerById(Integer id) {
 		return connectedPlayerIdMap.get(id);
 	}
 	
-	public void add(ChannelHandlerContext chc, ConnectedPlayer player) {
+	public void add(ChannelHandlerContext chc, ConnectedPlayer<ChannelHandlerContext> player) {
 		contextClientMap.put(chc, player);
 		connectedPlayerIdMap.put(player.getId(), player);
 		connectedPlayerContextMap.put(player.getId(), chc);
 	}
 	
 	public void remove(ChannelHandlerContext chc) {
-		ConnectedPlayer player = contextClientMap.get(chc);
+		ConnectedPlayer<ChannelHandlerContext> player = contextClientMap.get(chc);
 		if (player != null) {
 			contextClientMap.remove(chc);
 			connectedPlayerIdMap.remove(player.getId());
@@ -62,7 +63,7 @@ public class ConnectedPlayersBag {
 		}
 	}
 	
-	public void remove(UUID playerId) {
+	public void remove(Integer playerId) {
 		connectedPlayerIdMap.remove(playerId);
 		connectedPlayerContextMap.remove(playerId);
 		
